@@ -61,6 +61,7 @@
             max-width: 800px;
             text-align: center;
             line-height: 1.6;
+            font-family: monospace;
         }
         .features {
             color: #6b6c6e;
@@ -88,9 +89,9 @@
 </head>
 <body>
     <h1>shuk </h1>
-      <div class="description">
-        <code>🚀 Shuk is a lightning-fast command line tool that makes sharing files via Amazon S3 buckets a breeze! Simply point shuk at any file, and it will upload it to your S3 bucket and generate a pre-signed URL for easy sharing. 💾 </code>
-      </div>
+    <div class="description">
+        🚀 Shuk is a lightning-fast command line tool that makes sharing files via Amazon S3 buckets a breeze! Simply point shuk at any file, and it will upload it to your S3 bucket and generate a pre-signed URL for easy sharing. 💾
+    </div>
     <div class="url-container">
         <textarea class="url-text" readonly>https://github.com/darko-mesaros/shuk</textarea>
         <button class="copy-button" title="Copy to clipboard">
@@ -104,14 +105,12 @@
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
-
         // Function to handle copying
         function copyToClipboard() {
             const textarea = document.querySelector('.url-text');
             textarea.select();
             navigator.clipboard.writeText(textarea.value);
         }
-
         // Add click handlers to both the textarea and the button
         document.querySelector('.url-text').addEventListener('click', copyToClipboard);
         document.querySelector('.copy-button').addEventListener('click', copyToClipboard);
