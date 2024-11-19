@@ -2,120 +2,76 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shuk</title>
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/iosevka@5.0.0/index.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background-color: #161717;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .title {
+            font-family: 'Iosevka', monospace;
         }
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-        }
-        .url-container {
-            background-color: #1e1f20;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-            position: relative;
-            width: 500px;
-            display: flex;
-            align-items: center;
-        }
-        .url-text {
-            flex-grow: 1;
-            padding: 0.5rem;
-            height: 1rem;
-            background-color: transparent;
-            border: none;
-            color: white;
-            font-family: monospace;
-            resize: none;
-            outline: none;
-        }
-        .copy-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            color: #6b6c6e;
-            transition: color 0.2s;
-        }
-        .copy-button:hover {
+        .cursor::after {
+            content: ' _';
+            animation: cursor 0.5s infinite;
+            font-weight: 100;
             color: white;
         }
-        .links {
-            display: flex;
-            gap: 2rem;
-        }
-        .description {
-            color: #6b6c6e;
-            padding: 0.5rem;
-            max-width: 800px;
-            text-align: center;
-            line-height: 1.6;
-            font-family: monospace;
-        }
-        .features {
-            color: #6b6c6e;
-            margin-top: 1rem;
-            font-size: 0.95em;
-        }
-        .features ul {
-            list-style: none;
-            padding-left: 0;
-            text-align: center;
-        }
-        .features li {
-            margin: 0.5rem 0;
-        }
-        a {
-            color: #FFFFFF;
-            text-decoration: none;
-            font-size: 1.2rem;
-            transition: opacity 0.2s;
-        }
-        a:hover {
-            opacity: 0.8;
+
+        @keyframes cursor {
+            0%  { opacity: 1; }
+            100% { opacity: 0; }
         }
     </style>
 </head>
-<body>
-    <h1>shuk </h1>
-    <div class="gif"><img src="shuk.gif"></img></div>
-    <div class="description">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col justify-center items-center p-4 font-sans">
+    <h1 class="text-4xl md:text-5xl mb-8 title cursor">shuk</h1>
+
+    <div class="w-full max-w-[800px] mx-auto">
+        <img src="shuk.gif" alt="Shuk demo" class="w-full h-auto">
+    </div>
+
+    <div class="text-gray-400 max-w-[800px] text-center leading-relaxed p-4 font-mono">
         🚀 Shuk is a lightning-fast command line tool that makes sharing files via Amazon S3 buckets a breeze! Simply point shuk at any file, and it will upload it to your S3 bucket and generate a pre-signed URL for easy sharing. 💾
     </div>
-    <div class="url-container">
-        <textarea class="url-text" readonly>https://github.com/darko-mesaros/shuk</textarea>
-        <button class="copy-button" title="Copy to clipboard">
+
+    <div class="bg-gray-800 p-4 rounded w-full max-w-[500px] mx-auto flex items-center mb-8">
+        <textarea
+            class="flex-grow bg-transparent border-none text-white font-mono p-2 h-8 resize-none outline-none overflow-hidden leading-tight"
+            readonly
+        >https://github.com/darko-mesaros/shuk</textarea>
+        <button
+            class="text-gray-400 hover:text-white transition-colors duration-200 p-2"
+            title="Copy to clipboard"
+        >
             <i data-lucide="copy" size="18"></i>
         </button>
     </div>
-    <div class="links">
-        <a href="https://github.com/darko-mesaros/shuk" target="_blank">Github</a>
-        <a href="https://crates.io/crates/shuk" target="_blank">crates.io</a>
+
+    <div class="flex gap-8">
+        <a
+            href="https://github.com/darko-mesaros/shuk"
+            target="_blank"
+            class="text-white no-underline text-lg hover:opacity-80 transition-opacity"
+        >Github</a>
+        <a
+            href="https://crates.io/crates/shuk"
+            target="_blank"
+            class="text-white no-underline text-lg hover:opacity-80 transition-opacity"
+        >crates.io</a>
     </div>
+
     <script>
-        // Initialize Lucide icons
         lucide.createIcons();
-        // Function to handle copying
+
         function copyToClipboard() {
-            const textarea = document.querySelector('.url-text');
+            const textarea = document.querySelector('textarea');
             textarea.select();
             navigator.clipboard.writeText(textarea.value);
         }
-        // Add click handlers to both the textarea and the button
-        document.querySelector('.url-text').addEventListener('click', copyToClipboard);
-        document.querySelector('.copy-button').addEventListener('click', copyToClipboard);
+
+        document.querySelector('textarea').addEventListener('click', copyToClipboard);
+        document.querySelector('button').addEventListener('click', copyToClipboard);
     </script>
 </body>
 </html>
