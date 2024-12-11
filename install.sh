@@ -3,17 +3,62 @@
 set -e
 
 # REQUIREMENTS:
-# curl
+# curl, tar
 
 # Configuration
 GITHUB_REPO="darko-mesaros/shuk"
 BINARY_NAME="shuk"
 INSTALL_DIR="$HOME/.local/bin"
 
-# Print error and exit
+# Print error, cleanup and exit
 error() {
-    echo "Error: $1"
+    echo "❌ Error: $1"
+    cleanup
     exit 1
+}
+
+# Cleanup function
+cleanup() {
+    if [ -f "${INSTALL_DIR}/${BINARY_NAME}${ext}.backup" ]; then
+        echo "🔄 Restoring backup..."
+        mv "${INSTALL_DIR}/${BINARY_NAME}${ext}.backup" "${INSTALL_DIR}/${BINARY_NAME}${ext}"
+    fi
+    [ -d "$tmp_dir" ] && rm -rf "$tmp_dir"
+}
+
+# Welcome message
+print_welcome() {
+    cat << "EOF"
+  ____  _   _ _   _ _  __
+ / ___|| | | | | | | |/ /
+ \___ \| |_| | | | | ' /
+  ___) |  _  | |_| | . \
+ |____/|_| |_|\___/|_|\_\
+
+EOF
+    echo "Installing shuk..."
+    echo "----------------------------------------"
+}
+
+# Check for root - please do not install as root
+check_not_root() {
+    if [ "$(id -u)" = "0" ]; then
+        error "This script should not be run as root/sudo"
+    fi
+}
+
+# Check network connectivity - this should always work, but just in case
+check_network() {
+    echo "🌐 Checking network connectivity..."
+    curl --silent --head https://github.com >/dev/null 2>&1 || error "No internet connection"
+}
+
+# Preflight checks
+preflight_checks() {
+    command -v curl >/dev/null 2>&1 || error "curl is required but not installed"
+    command -v tar >/dev/null 2>&1 || error "tar is required but not installed"
+    check_not_root
+    check_network
 }
 
 # Detect OS and architecture
@@ -48,15 +93,17 @@ detect_platform() {
             error "unsupported architecture: $(uname -m)"
             ;;
     esac
-
+    # This is how my archives are named:
+    # shuk-x86_64-unknown-linux-gnu.tar.gz
     echo "${arch}-${os}"
 }
 
 # Get latest version from GitHub
 get_latest_version() {
-    curl --silent "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" |
+    VERSION=$(curl --silent --proto '=https' --tlsv1.2 "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" |
     grep '"tag_name":' |
-    sed -E 's/.*"([^"]+)".*/\1/'
+    sed -E 's/.*"([^"]+)".*/\1/')
+    echo "$VERSION"
 }
 
 # Download and install the binary
@@ -78,51 +125,73 @@ install() {
 
     # Create temporary directory
     tmp_dir=$(mktemp -d)
-    trap 'rm -rf "$tmp_dir"' EXIT
+    trap cleanup ERR
 
-    echo "Downloading ${BINARY_NAME} ${version} for ${platform}..."
-    
+    echo "📥 Downloading ${BINARY_NAME} ${version} for ${platform}..."
+
     # Download and extract
-    # https://github.com/darko-mesaros/shuk/releases/download/v0.4.6/shuk-x86_64-unknown-linux-gnu.tar.gz
-    curl -sL "https://github.com/${GITHUB_REPO}/releases/download/${version}/${BINARY_NAME}-${platform}.tar.gz" |
+    curl --proto '=https' --tlsv1.2 -sL "https://github.com/${GITHUB_REPO}/releases/download/${version}/${BINARY_NAME}-${platform}.tar.gz" |
     tar xz -C "$tmp_dir"
 
     # Create install directory if it doesn't exist
     mkdir -p "$INSTALL_DIR"
 
+    # Backup existing installation
+    if [ -f "${INSTALL_DIR}/${BINARY_NAME}${ext}" ]; then
+        echo "📦 Backing up existing installation..."
+        mv "${INSTALL_DIR}/${BINARY_NAME}${ext}" "${INSTALL_DIR}/${BINARY_NAME}${ext}.backup"
+    fi
+
     # Install binary
     mv "${tmp_dir}/${BINARY_NAME}${ext}" "${INSTALL_DIR}/${BINARY_NAME}${ext}"
     chmod +x "${INSTALL_DIR}/${BINARY_NAME}${ext}"
 
-    echo "Successfully installed ${BINARY_NAME} to ${INSTALL_DIR}/${BINARY_NAME}${ext}"
+    echo "✅ Successfully installed ${BINARY_NAME} to ${INSTALL_DIR}/${BINARY_NAME}${ext}"
 }
 
-# Check if curl is available
-command -v curl >/dev/null 2>&1 || error "curl is required but not installed"
+# Verify installation
+verify_installation() {
+    echo "🔍 Verifying installation..."
+    if ! command -v "${INSTALL_DIR}/${BINARY_NAME}" >/dev/null 2>&1; then
+        error "Installation failed: Binary not found in PATH"
+    fi
+    echo "✅ Verification: $("${INSTALL_DIR}/${BINARY_NAME}" --version)"
+}
 
-# Detect platform
-PLATFORM=$(detect_platform)
-
-# Get latest version if not specified
-VERSION=${1:-$(get_latest_version)}
-
-# Install
-install "$PLATFORM" "$VERSION"
-
-# Add to PATH instructions
-case "$(uname -s)" in
-    MINGW*|MSYS*|CYGWIN*)
-        echo "
-Please add ${INSTALL_DIR} to your PATH:
+# Print success message with PATH instructions
+print_success_message() {
+    case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*)
+            echo "
+🎉 Installation complete! Please add ${INSTALL_DIR} to your PATH:
     setx PATH \"%PATH%;${INSTALL_DIR}\"
 "
-        ;;
-    *)
-        echo "
-Please add ${INSTALL_DIR} to your PATH:
+            ;;
+        *)
+            echo "
+🎉 Installation complete! Please add ${INSTALL_DIR} to your PATH:
     export PATH=\"\$PATH:${INSTALL_DIR}\"
 
 You can add this line to your ~/.bashrc or ~/.zshrc file to make it permanent.
 "
-        ;;
-esac
+            ;;
+    esac
+}
+
+# Main function
+main() {
+    print_welcome
+    preflight_checks
+    echo "🔍 Detecting system..."
+    PLATFORM=$(detect_platform)
+    echo "📍 Detected platform: $PLATFORM"
+    echo "🔍 Getting latest version..."
+    VERSION=$(get_latest_version)
+    echo "📦 Latest version: $VERSION"
+    install "$PLATFORM" "$VERSION"
+    verify_installation
+    print_success_message
+}
+
+# Run main function
+main
