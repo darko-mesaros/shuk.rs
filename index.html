@@ -41,17 +41,20 @@
 
     <div class="text-orange-400 max-w-[800px] text-center leading-relaxed p-4 text-2xl title">Install script:</div>
 
-    <div class="bg-gray-800 p-4 rounded w-full max-w-[700px] mx-auto flex items-center mb-8">
-        <textarea
-            class="flex-grow bg-transparent border-none text-white font-mono p-2 h-8 resize-none outline-none overflow-hidden leading-tight"
-            readonly
-        >curl -fsSL https://shuk.rs/install.sh | sh</textarea>
-        <button
-            class="text-gray-400 hover:text-white transition-colors duration-200 p-2"
-            title="Copy to clipboard"
-        >
-            <i data-lucide="copy" size="18"></i>
-        </button>
+    <div class="bg-gray-800 p-2 rounded w-full max-w-[700px] mx-auto flex flex-wrap items-center mb-8 gap-2">
+      <div class="flex-1 min-w-0 flex items-center"> <!-- Added flex and items-center -->
+          <textarea
+              class="w-full bg-transparent border-none text-white font-mono px-2 resize-none outline-none overflow-hidden leading-none"
+              style="min-height: 1.5em; line-height: 1.5em; padding-top: 1.5em;"
+              readonly
+              >curl -fsSL https://shuk.rs/install.sh | sh</textarea> <!--the padding-top: 1.5em adjusts the quasi centering in the text box-->
+      </div>
+      <button
+          class="text-gray-400 hover:text-white transition-colors duration-200 p-1 flex-shrink-0"
+          title="Copy to clipboard"
+      >
+          <i data-lucide="copy" size="18"></i>
+      </button>
     </div>
 
     <div class="text-gray-600 max-w-[800px] text-center leading-relaxed p-4 text-xs font-mono ">Paste the above command in your terminal and hit return. Feel free to inspect the install script over on <a href="https://github.com/darko-mesaros/shuk/blob/main/install_script.sh" class="text-blue-600 underline dark:text-blue-500 hover:no-underline">github.</a></div>
